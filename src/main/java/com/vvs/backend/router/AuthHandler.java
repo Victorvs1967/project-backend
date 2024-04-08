@@ -20,26 +20,23 @@ public class AuthHandler {
 	private final AuthService authService;
 
 	public Mono<ServerResponse> signUp(ServerRequest request) {
+		return request.bodyToMono(UserDto.class)
+			.map(credentials -> authService.signUp(credentials))
+			.flatMap(userDetails -> ServerResponse
+				.ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(userDetails, UserDto.class))
 
-		Mono<UserDto> userDto = request.bodyToMono(UserDto.class)
-			.flatMap(credentials -> authService.signUp(credentials))
-			.map(userDetails -> userDetails);
-
-		return ServerResponse
-			.ok()
-			.contentType(MediaType.APPLICATION_JSON)
-			.body(userDto, UserDto.class);
+		 ;
 	}
 
 	public Mono<ServerResponse> login(ServerRequest request) {
-
-		Mono<ResponseDto> response = request.bodyToMono(LoginDto.class)
-			.flatMap(credentials -> authService.login(credentials.getUsername(), credentials.getPassword()))
-			.switchIfEmpty(Mono.error(new Exception("Login error...")));
-
-		return ServerResponse
-			.ok()
-			.contentType(MediaType.APPLICATION_JSON)
-			.body(response, ResponseDto.class);
+		return request.bodyToMono(LoginDto.class)
+			.map(credentials -> authService.login(credentials.getUsername(), credentials.getPassword()))
+			.switchIfEmpty(Mono.error(new Exception("Login error...")))
+			.flatMap(response -> ServerResponse
+				.ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(response, ResponseDto.class));
 	}
 }
