@@ -27,7 +27,7 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
 
         return Mono.just(authToken)
             .map(token -> jwtService.validateToken(token, authentication.getName()))
-            .flatMap(isValid -> jwtService.extractAllClaims(authToken)).log()
+            .flatMap(isValid -> jwtService.extractAllClaims(authToken))
             .map(claims -> new UsernamePasswordAuthenticationToken(claims.getSubject(), null, Collections.singletonList(new SimpleGrantedAuthority(claims.get(KEY_ROLE).toString()))));
     }
 }
