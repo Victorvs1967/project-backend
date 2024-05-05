@@ -8,7 +8,6 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import com.vvs.backend.service.JwtService;
@@ -21,15 +20,14 @@ import reactor.core.publisher.Mono;
 public class AuthenticationManager implements ReactiveAuthenticationManager {
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
         String authToken = authentication.getCredentials().toString();
 
         return Mono.just(authToken)
-            .map(token -> jwtService.validateToken(token, userDetailsService.loadUserByUsername(jwtService.extractUsername(authToken))))
-            .map(isValid -> jwtService.extractAllClaims(authToken))
+            .map(token -> jwtService.validateToken(token, authentication.getName()))
+            .flatMap(isValid -> jwtService.extractAllClaims(authToken)).log()
             .map(claims -> new UsernamePasswordAuthenticationToken(claims.getSubject(), null, Collections.singletonList(new SimpleGrantedAuthority(claims.get(KEY_ROLE).toString()))));
     }
 }
