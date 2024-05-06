@@ -22,12 +22,11 @@ public class AuthHandler {
 	public Mono<ServerResponse> signUp(ServerRequest request) {
 		return request.bodyToMono(UserDto.class)
 			.map(credentials -> authService.signUp(credentials))
+			.switchIfEmpty(Mono.error(new Exception("Create User Error...")))
 			.flatMap(userDetails -> ServerResponse
 				.ok()
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(userDetails, UserDto.class))
-
-		 ;
+				.body(userDetails, UserDto.class));
 	}
 
 	public Mono<ServerResponse> login(ServerRequest request) {

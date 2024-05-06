@@ -14,7 +14,8 @@ public class UserRouter {
     public RouterFunction<ServerResponse> userRouterFunction(UserHandler userHandler) {
         return RouterFunctions.route()
             .nest(RequestPredicates.path("/api/users"), builder -> builder
-                .GET("", userHandler::getUsers))
+                .GET("", userHandler::getUsers)
+                .GET("/{username}", userHandler::getUser))
             .build();
     }
 }

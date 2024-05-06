@@ -51,7 +51,7 @@ public class InitialDataSender implements ApplicationListener<ApplicationStarted
             .role(UserRole.ADMIN)
             .onCreate(Date.from(Instant.now()))
             .onUpdate(Date.from(Instant.now()))
-            .isActivate(true)
+            .isActive(true)
             .build();
         
         return userRepository.save(user)

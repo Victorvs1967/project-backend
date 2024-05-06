@@ -29,13 +29,13 @@ public class User implements UserDetails {
 
     private Date onCreate;
     private Date onUpdate;
-    private boolean isActivate;
+    private boolean isActive;
     private UserRole role;
 
     public User() {
         onCreate = Date.from(Instant.now());
         onUpdate = onCreate;
-        isActivate = true;
+        isActive = true;
         role = UserRole.USER;
     }
 
@@ -45,19 +45,19 @@ public class User implements UserDetails {
     }
     @Override
     public boolean isAccountNonExpired() {
-        return isActivate;
+        return isActive;
     }
     @Override
     public boolean isAccountNonLocked() {
-        return isActivate;
+        return isActive;
     }
     @Override
     public boolean isCredentialsNonExpired() {
-        return isActivate;
+        return isActive;
     }
     @Override
     public boolean isEnabled() {
-        return isActivate;
+        return isActive;
     }
 
 }

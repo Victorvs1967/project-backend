@@ -21,11 +21,27 @@ public class UserHandler {
 
 	Mono<ServerResponse> getUsers(ServerRequest request) {
 		String token = request.headers().firstHeader("authorization").substring(7);
-		return ServerResponse
+		return jwtService.validateToken(token, jwtService.extractUsername(token))
+			.map(result -> !result)
+			.switchIfEmpty(Mono.error(new Exception()))
+			.flatMap(tok -> ServerResponse
 				.ok()
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(userService.getUsers(), UserDto.class);
-				
+				.body(userService.getUsers(), UserDto.class));
+	}
+
+	Mono<ServerResponse> getUser(ServerRequest request) {
+		String username = request.pathVariable("username");
+		String token = request.headers().firstHeader("authorization").substring(7);
+		return jwtService.validateToken(token, username)
+			.switchIfEmpty(Mono.error(new Exception("Username error...")))
+			.map(result -> !result)
+			.map(isUsername -> username)
+			.map(userService::getUser)
+			.flatMap(user -> ServerResponse
+				.ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(user, UserDto.class));
 	}
 
 }

@@ -22,7 +22,7 @@ public class UserDto {
 
     private Date onCreate;
     private Date onUpdate;
-    private boolean isActivate;
+    private boolean isActive;
     private UserRole role;
 
 }

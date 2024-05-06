@@ -33,13 +33,13 @@ public class AuthServiceImpl implements AuthService {
 					.filter(emailExist -> !emailExist)
 					.switchIfEmpty(Mono.error(new Exception("Email already exist..."))))
 			.map(aBoolean -> userDto)
-			.map(usrDto -> mapper.conver(usrDto, User.class))
+			.map(usrDto -> mapper.convert(usrDto, User.class))
 			.doOnNext(user -> user.setPassword(passwordEncoder.encode(user.getPassword())))
 			.doOnNext(user -> user.setOnCreate(Date.from(Instant.now())))
 			.doOnNext(user -> user.setOnUpdate(user.getOnCreate()))
-			.doOnNext(user -> user.setActivate(true))
+			.doOnNext(user -> user.setActive(true))
 			.flatMap(userRepository::save)
-			.map(user -> mapper.conver(user, UserDto.class));
+			.map(user -> mapper.convert(user, UserDto.class));
 	}
 
 	@Override
