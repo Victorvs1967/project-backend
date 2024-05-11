@@ -33,6 +33,19 @@ public class JwtService {
 	private SecretKey key;
 	public static final String KEY_ROLE = "role";
 
+	public String generateToken(User userDetails) {
+		
+		Map<String, Object> claims = new HashMap<>();
+
+		String authority = userDetails
+			.getAuthorities().stream()
+			.map(GrantedAuthority::getAuthority)
+			.collect(toSingleton());
+		claims.put(KEY_ROLE, authority);
+
+		return createToken(claims, userDetails.getUsername());
+	}
+
 	public String extractUsername(String token) {
 		return extractClaim(token, Claims::getSubject);
 	}
@@ -50,19 +63,6 @@ public class JwtService {
 		return Mono.just(username.equals(string) && !isTokenExpirated(token));
 	}
 
-	public String generateToken(User userDetails) {
-		
-		Map<String, Object> claims = new HashMap<>();
-
-		String authority = userDetails
-			.getAuthorities().stream()
-			.map(GrantedAuthority::getAuthority)
-			.collect(toSingleton());
-		claims.put(KEY_ROLE, authority);
-
-		return createToken(claims, userDetails.getUsername());
-	}
-
 	public Mono<Claims> extractAllClaims(String token) {
 		return Mono.just(Jwts
 			.parser()
@@ -77,7 +77,6 @@ public class JwtService {
 	}
 
 	private String createToken(Map<String, Object> claims, String username) {
-
 		return Jwts.builder()
 			.claims(claims)
 			.subject(username)
