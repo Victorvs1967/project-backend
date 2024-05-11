@@ -25,6 +25,9 @@ public class UserDto {
     private String phone;
     private String address;
 
+    private String photo;
+    private String avatar;
+
     private Date onCreate;
     private Date onUpdate;
     private boolean isActive;

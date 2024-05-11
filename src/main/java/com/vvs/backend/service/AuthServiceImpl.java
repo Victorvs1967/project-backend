@@ -47,8 +47,9 @@ public class AuthServiceImpl implements AuthService {
 		return userRepository.findUserByUsername(username)
 			.filter(userDetails -> passwordEncoder.matches(password, userDetails.getPassword()))
 			.map(userDetails -> jwtService.generateToken(userDetails))
-			.map(token -> ResponseDto.builder()
-				.token(token)
+			.map(token -> ResponseDto
+				.builder()
+					.token(token)
 				.build());
 	}
 
