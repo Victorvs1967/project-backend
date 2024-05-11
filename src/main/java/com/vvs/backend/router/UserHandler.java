@@ -44,4 +44,35 @@ public class UserHandler {
 				.body(user, UserDto.class));
 	}
 
+	Mono<ServerResponse> updateUser(ServerRequest request) {
+		String username = request.pathVariable("username");
+		String token = request.headers().firstHeader("authorization").substring(7);
+		Mono<UserDto> userDto = request.bodyToMono(UserDto.class);
+		return jwtService.validateToken(token, username)
+			.switchIfEmpty(Mono.error(new Exception("Username error...")))
+			.map(result -> !result)
+			.map(isUsername -> username)
+			.map(userService::getUser)
+			.switchIfEmpty(Mono.error(new Exception("User not found...")))
+			.flatMap(credentional -> userDto)
+			.map(userService::updateUserData)
+			.flatMap(user -> ServerResponse
+				.ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(user, UserDto.class));
+	}
+
+	Mono<ServerResponse> deleteUser(ServerRequest request) {
+		String username = request.pathVariable("username");
+		String token = request.headers().firstHeader("authorization").substring(7);
+		return jwtService.validateToken(token, username)
+			.switchIfEmpty(Mono.error(new Exception("Username error...")))
+			.map(result -> !result)
+			.map(isUsername -> username)
+			.flatMap(user -> ServerResponse
+				.ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(userService.deleteUser(user), UserDto.class));
+	}
+
 }

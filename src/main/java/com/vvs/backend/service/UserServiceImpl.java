@@ -41,15 +41,15 @@ public class UserServiceImpl implements UserService {
 			.switchIfEmpty(Mono.error(new Exception("User not found...")))
 			.map(user -> User
 				.builder()
-				.id(user.getId())
-				.username(user.getUsername())
-				.password(user.getPassword())
-				.email(user.getEmail())
-				.onCreate(null)
-				.onCreate(user.getOnCreate())
-				.onUpdate(Date.from(Instant.now()))
-				.isActive(userDto.isActive())
-				.role(userDto.getRole())
+					.id(user.getId())
+					.username(user.getUsername())
+					.password(user.getPassword())
+					.email(user.getEmail())
+					.onCreate(null)
+					.onCreate(user.getOnCreate())
+					.onUpdate(Date.from(Instant.now()))
+					.isActive(userDto.isActive())
+					.role(userDto.getRole())
 				.build())
 			.flatMap(userRepository::save)
 			.map(user -> mapper.convert(user, UserDto.class));
@@ -57,8 +57,18 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Mono<UserDto> deleteUser(String username) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
+		return userRepository.findUserByUsername(username)
+			.switchIfEmpty(Mono.error(new Exception("User not found... ")))
+			.flatMap(this::delete)
+			.map(user -> mapper.convert(user, UserDto.class));
 	}
 
+	private Mono<User> delete(User user) {
+		return Mono.fromSupplier(() -> {
+			userRepository
+				.delete(user)
+				.subscribe();
+			return user;
+		});
+	}
 }

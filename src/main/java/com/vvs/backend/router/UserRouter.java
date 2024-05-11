@@ -15,7 +15,9 @@ public class UserRouter {
         return RouterFunctions.route()
             .nest(RequestPredicates.path("/api/users"), builder -> builder
                 .GET("", userHandler::getUsers)
-                .GET("/{username}", userHandler::getUser))
+                .GET("/{username}", userHandler::getUser)
+                .PUT("/{username}", userHandler::updateUser)
+                .DELETE("/{username}", userHandler::deleteUser))
             .build();
     }
 }
