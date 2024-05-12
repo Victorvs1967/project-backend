@@ -35,12 +35,12 @@ public class JwtService {
 
 	public String generateToken(User userDetails) {
 		
-		Map<String, Object> claims = new HashMap<>();
-
 		String authority = userDetails
-			.getAuthorities().stream()
-			.map(GrantedAuthority::getAuthority)
-			.collect(toSingleton());
+		.getAuthorities().stream()
+		.map(GrantedAuthority::getAuthority)
+		.collect(toSingleton());
+		
+		Map<String, Object> claims = new HashMap<>();
 		claims.put(KEY_ROLE, authority);
 
 		return createToken(claims, userDetails.getUsername());

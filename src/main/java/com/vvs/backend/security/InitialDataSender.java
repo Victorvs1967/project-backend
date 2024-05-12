@@ -21,41 +21,41 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class InitialDataSender implements ApplicationListener<ApplicationStartedEvent> {
-    
-    @Value("${admin.username}")
-    private String username;
 
-    @Value("${admin.password}")
-    private String password;
+	@Value("${admin.username}")
+	private String username;
 
-    @Value("${admin.email}")
-    private String email;
+	@Value("${admin.password}")
+	private String password;
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+	@Value("${admin.email}")
+	private String email;
 
-    @SuppressWarnings("null")
-    @Override
-    public void onApplicationEvent(ApplicationStartedEvent event) {
-        userRepository.findUserByUsername(username)
-            .switchIfEmpty(createAdmin())
-            .subscribe();
-    }
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
-    @SuppressWarnings("null")
-    private Mono<User> createAdmin() {
-        User user = User.builder()
-            .username(username)
-            .password(passwordEncoder.encode(password))
-            .email(email)
-            .role(UserRole.ADMIN)
-            .onCreate(Date.from(Instant.now()))
-            .onUpdate(Date.from(Instant.now()))
-            .isActive(true)
-            .build();
-        
-        return userRepository.save(user)
-            .doOnNext(admin -> log.info("Admin user created successfully..."));
-    }
+	@SuppressWarnings("null")
+	@Override
+	public void onApplicationEvent(ApplicationStartedEvent event) {
+		userRepository.findUserByUsername(username)
+			.switchIfEmpty(createAdmin())
+			.subscribe();
+	}
+
+	private Mono<User> createAdmin() {
+		User user = User
+			.builder()
+				.username(username)
+				.password(passwordEncoder.encode(password))
+				.email(email)
+				.role(UserRole.ADMIN)
+				.onCreate(Date.from(Instant.now()))
+				.onUpdate(Date.from(Instant.now()))
+				.isActive(true)
+			.build();
+
+		return userRepository.save(user)
+			.doOnNext(admin -> log.info("Admin user created successfully..."));
+	}
 
 }

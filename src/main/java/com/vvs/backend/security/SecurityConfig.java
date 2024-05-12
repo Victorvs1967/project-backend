@@ -21,55 +21,55 @@ import reactor.core.publisher.Mono;
 @EnableWebFluxSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    
-    @Value("${host.url}")
-    private String hostUrl;
 
-    private final static String[] WHITELIST_AUTH_URL = {"/auth/signup", "/auth/login"};
+	@Value("${host.url}")
+	private String hostUrl;
 
-    private final AuthenticationManager authenticationManager;
-    private final SecurityContextRepository securityContextRepository;
+	private final static String[] WHITELIST_AUTH_URL = { "/auth/signup", "/auth/login" };
 
-    public CorsConfigurationSource createConfigurationSource() {
+	private final AuthenticationManager authenticationManager;
+	private final SecurityContextRepository securityContextRepository;
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-    
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin(hostUrl);
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", config);
+	public CorsConfigurationSource createConfigurationSource() {
 
-        return source;
-    }
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
 
-    @SuppressWarnings("removal")
-    @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        return http
-            .cors().configurationSource(createConfigurationSource())
-            .and()
-            .exceptionHandling()
-            .authenticationEntryPoint((shs, e) -> Mono.fromRunnable(() -> shs.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED)))
-            .accessDeniedHandler((shs, e) -> Mono.fromRunnable(() -> shs.getResponse().setStatusCode(HttpStatus.FORBIDDEN)))
-            .and()
-            .csrf().disable()
-            .formLogin().disable()
-            .authenticationManager(authenticationManager)
-            .securityContextRepository(securityContextRepository)
-            .authorizeExchange()
-            .pathMatchers(HttpMethod.PUT).hasAnyAuthority("ADMIN", "MANAGER")
-            .pathMatchers(HttpMethod.DELETE).hasAnyAuthority("ADMIN", "MANAGER")
-            .pathMatchers(HttpMethod.OPTIONS).permitAll()
-            .pathMatchers(WHITELIST_AUTH_URL).permitAll()
-            .anyExchange().authenticated()
-            .and()
-            .build();
-    }
+		config.setAllowCredentials(true);
+		config.addAllowedOrigin(hostUrl);
+		config.addAllowedHeader("*");
+		config.addAllowedMethod("*");
+		source.registerCorsConfiguration("/**", config);
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+		return source;
+	}
+
+	@SuppressWarnings("removal")
+	@Bean
+	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+		return http
+				.cors().configurationSource(createConfigurationSource())
+				.and()
+				.exceptionHandling()
+					.authenticationEntryPoint((shs, e) -> Mono.fromRunnable(() -> shs.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED)))
+					.accessDeniedHandler((shs, e) -> Mono.fromRunnable(() -> shs.getResponse().setStatusCode(HttpStatus.FORBIDDEN)))
+				.and()
+				.csrf().disable()
+				.formLogin().disable()
+				.authenticationManager(authenticationManager)
+				.securityContextRepository(securityContextRepository)
+				.authorizeExchange()
+				.pathMatchers(HttpMethod.PUT).hasAnyAuthority("ADMIN", "MANAGER")
+				.pathMatchers(HttpMethod.DELETE).hasAnyAuthority("ADMIN", "MANAGER")
+				.pathMatchers(HttpMethod.OPTIONS).permitAll()
+				.pathMatchers(WHITELIST_AUTH_URL).permitAll()
+				.anyExchange().authenticated()
+				.and()
+			.build();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 }
